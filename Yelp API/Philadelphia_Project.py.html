@@ -1,0 +1,55 @@
+
+# coding: utf-8
+
+# In[119]:
+
+
+#importing the data from Yelp API
+
+import argparse
+import json
+import pprint
+import requests
+import sys
+import urllib
+
+from urllib.error import HTTPError
+from urllib.parse import quote
+from urllib.parse import urlencode 
+
+import pandas as pd
+from pandas.io.json import json_normalize
+
+
+api_key = "BeSq_z6_GWR16ulkLnI4ReGlT2KRL3WFUaMv03PTab_OIxey1IiUSwmxgVgd5aXoU3fdZR3Vnb5syMsNKUIuOzbmZZwmiOOW-izjFTHl731-VQltKUjmaCtXfa7YW3Yx"
+
+API_HOST = 'https://api.yelp.com'
+SEARCH_PATH = '/v3/businesses/search'
+BUSINESS_PATH = '/v3/businesses/'
+
+DEFAULT_TERM = 'chinese grocery store'
+DEFAULT_LOCATION = 'Philadelphia, PA'
+
+#edit to allow for number of results wanted 
+SEARCH_LIMIT = 30;
+
+url_params = {
+    'term': DEFAULT_TERM.replace(' ', '+'),
+    'location': DEFAULT_LOCATION.replace(' ', '+'),
+    'limit': SEARCH_LIMIT
+}
+
+url = '{0}{1}'.format(API_HOST, quote(SEARCH_PATH.encode('utf8')))
+
+headers = {
+    'Authorization': 'Bearer %s' % api_key,
+}
+
+response = requests.request('GET', url, headers=headers, params=url_params)
+a = response.json()
+
+df = pd.DataFrame.from_dict(json_normalize(a['businesses']), orient='columns')
+
+finaldf = df[['alias', 'coordinates.latitude', 'coordinates.longitude']]
+finaldf
+
